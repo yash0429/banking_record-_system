@@ -1,0 +1,166 @@
+#include <iostream>
+#include<stdlib.h>
+#include <windows.h>
+#include <mysql.h>
+#include <sstream>
+#include <string.h>
+#include<time.h>
+#include<stdio.h>
+
+using namespace std;
+void addRecord();
+void showBalance();
+void withdrawRecord();
+void searchTransaction();
+
+int main(){
+    int choice;
+    A:
+    cout<<"*************************************************************************************"<<endl;
+    cout<<"\t\t\t Banking Record System "<<endl;
+    cout<<"1. Add Record"<<endl;
+    cout<<"2. Show Balance"<<endl;
+    cout<<"3. Money Withdrawal"<<endl;
+    cout<<"4. Search transaction"<<endl;
+    cout<<"5. Exit"<<endl;
+    cout<<"\n Enter your choice: ";
+    cin>>choice;
+    switch(choice){
+        case 1: addRecord();goto A;
+        case 2: showBalance();goto A;
+        case 3: withdrawRecord();goto A;
+        case 4: searchTransaction();goto A;
+        case 5: exit(0);
+        default: cout<<"invalid choice..."<<endl;goto A;
+            }
+    return 0;
+}
+
+void addRecord(){
+    MYSQL* conn;
+    conn=mysql_init(0);
+    conn=mysql_real_connect(conn,"192.168.137.1","admin","admin","banking_system",0,NULL,0);
+if(conn){
+    stringstream ss;
+    string fname,lname;
+    long acc;
+    float bal;
+    cout<<"\nEnter account number:";
+    cin>>acc;
+    cout<<"\nEnter first name:";
+    cin>>fname;
+    cout<<"\nEnter last name:";
+    cin>>lname;
+    cout<<"\nEnter amount:";
+    cin>>bal;
+    ss<<"INSERT into acc_data(account,firstName,lastName,balance) values ('"<<acc<<"','"<<fname<<"','"<<lname<<"','"<<bal<<"')";
+    string query=ss.str();
+    const char* q=query.c_str();
+    int qstate=0;
+    qstate=mysql_query(conn,q);
+    if(qstate==0){
+        cout<<"\nRecord inserted..."<<endl;
+    }
+    else{
+        cout<<"\n Insertion failed!"<<endl;
+    }
+}else{
+cout<<"Not Connected"<<endl;
+}
+}
+
+void showBalance(){
+    MYSQL* conn;
+    MYSQL_ROW row;
+    MYSQL_RES* res;
+    conn=mysql_init(0);
+    conn=mysql_real_connect(conn,"192.168.56.1","admin","admin","banking_system",0,NULL,0);
+    if(conn){
+        string fname,lname;
+        long acc;
+        cout<<"\nEnter account number:";
+        cin>>acc;
+        cout<<"\nEnter first name:";
+        cin>>fname;
+        cout<<"\nEnter last name:";
+        cin>>lname;
+        stringstream ss;
+        ss<<"SELECT balance from acc_data where firstName='"<<fname<<"' AND lastName='"<<lname<<"' AND account='"<<acc<<"'";
+        string query=ss.str();
+        const char* q=query.c_str();
+        int qstate=mysql_query(conn,q);
+        if(!qstate){
+            res=mysql_store_result(conn);
+            row=mysql_fetch_row(res);
+            cout<<"\nAccount Balance is "<<row[0]<<endl;
+            }
+        }else{
+            cout<<"\nNot connected"<<endl;
+            }
+}
+
+void withdrawRecord(){
+    MYSQL* conn;
+    conn=mysql_init(0);
+    conn=mysql_real_connect(conn,"192.168.137.1","admin","admin","banking_system",0,NULL,0);
+    if(conn){
+        stringstream ss;
+        string fname,lname;
+        long acc;
+        float am;
+        cout<<"\nEnter account number:";
+        cin>>acc;
+        cout<<"\nEnter first name:";
+        cin>>fname;
+        cout<<"\nEnter last name:";
+        cin>>lname;
+        cout<<"\nEnter money to be withdrawn:";
+        cin>>am;
+        ss<<"UPDATE acc_data SET balance=balance-'"<<am<<"' where firstName='"<<fname<<"' AND lastName='"<<lname<<"' AND account='"<<acc<<"'";
+        string query=ss.str();
+        const char* q=query.c_str();
+        int qstate=mysql_query(conn,q);
+
+        stringstream s;
+        int trans;
+        srand(time(NULL));
+        trans=rand()%1000000+2000000;
+        s<<"INSERT INTO trans_detail(account,transNo) values ('"<<acc<<"','"<<trans<<"')";
+        string query2=s.str();
+        const char* q2=query2.c_str();
+        int qstate2=mysql_query(conn,q2);
+        if(qstate==0 && qstate2==0)
+            cout<<"\nSuccessfully withdrawn!."<<"\nTransaction Number is "<<trans<<endl;
+    }
+    else
+        cout<<"\nNot connected."<<endl;
+}
+
+void searchTransaction(){
+    MYSQL* conn;
+    MYSQL_ROW row;
+    MYSQL_RES* res;
+    conn=mysql_init(0);
+    conn=mysql_real_connect(conn,"192.168.137.1","admin","admin","banking_system",0,NULL,0);
+    if(conn){
+        stringstream ss;
+        int trans;
+        cout<<"Enter Transaction Number:";
+        cin>>trans;
+        ss<<"SELECT A.account, firstName, lastName, balance, date from acc_data A, trans_detail B where transNo='"<<trans<<"' AND A.account=B.account";
+        string query=ss.str();
+        const char* q=query.c_str();
+        int qstate=mysql_query(conn,q);
+        if(!qstate){
+            res=mysql_store_result(conn);
+            row=mysql_fetch_row(res);
+            cout<<"\nAccount number: "<<row[0];
+            cout<<"\nFirst Name: "<<row[1];
+            cout<<"\nLast Name: "<<row[2];
+            cout<<"\nCurrent Balance: "<<row[3];
+            cout<<"\nDate and Time of Transaction: "<<row[4]<<endl;
+        }
+    }
+    else
+        cout<<"not connected";
+}
