@@ -7,8 +7,8 @@ banking record system in c++ language using SQL database connection.
 5.	Use MySql For Database Connections.
 
 # SOFTWARE USED
-Codeblocks   16.0.1 ( minGW compiler)
-Xampp server
+1. Codeblocks   16.0.1 ( minGW compiler)
+2. Xampp server
 
 # Compiling
 Any C++ compiler should work.
