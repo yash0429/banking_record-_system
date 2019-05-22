@@ -15,7 +15,7 @@ void searchTransaction();
 
 int main(){
     int choice;
-    A:
+    A:              // used as label
     cout<<"*************************************************************************************"<<endl;
     cout<<"\t\t\t Banking Record System "<<endl;
     cout<<"1. Add Record"<<endl;
@@ -25,17 +25,18 @@ int main(){
     cout<<"5. Exit"<<endl;
     cout<<"\n Enter your choice: ";
     cin>>choice;
-    switch(choice){
-        case 1: addRecord();goto A;
-        case 2: showBalance();goto A;
-        case 3: withdrawRecord();goto A;
-        case 4: searchTransaction();goto A;
-        case 5: exit(0);
-        default: cout<<"invalid choice..."<<endl;goto A;
+    switch(choice){                         // This gives options to the user to choose what is needed to execute
+        case 1: addRecord();goto A;         // Adds new record of the user
+        case 2: showBalance();goto A;       // Show balance amount in the existing account
+        case 3: withdrawRecord();goto A;    // Withdraw amount from existing account
+        case 4: searchTransaction();goto A; // Search account and transaction details on the basis of transaction number
+        case 5: exit(0);                    // Exit from program
+        default: cout<<"invalid choice..."<<endl;goto A;        // if choice is not from 1 to 5
             }
     return 0;
 }
 
+// It is called when choice 1 is selected, it adds a new account details
 void addRecord(){
     MYSQL* conn;
     conn=mysql_init(0);
@@ -69,6 +70,7 @@ cout<<"Not Connected"<<endl;
 }
 }
 
+// This shows available balance in an account
 void showBalance(){
     MYSQL* conn;
     MYSQL_ROW row;
@@ -99,6 +101,7 @@ void showBalance(){
             }
 }
 
+// This Withdraw a particular account from existing account in database
 void withdrawRecord(){
     MYSQL* conn;
     conn=mysql_init(0);
@@ -136,6 +139,7 @@ void withdrawRecord(){
         cout<<"\nNot connected."<<endl;
 }
 
+// It search transaction details
 void searchTransaction(){
     MYSQL* conn;
     MYSQL_ROW row;
@@ -164,3 +168,4 @@ void searchTransaction(){
     else
         cout<<"not connected";
 }
+
